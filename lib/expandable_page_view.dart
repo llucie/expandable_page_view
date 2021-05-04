@@ -19,6 +19,7 @@ class ExpandablePageView extends StatefulWidget {
   final bool allowImplicitScrolling;
   final String? restorationId;
   final Clip clipBehavior;
+  final int initialPage;
 
   /// Whether to animate the first page displayed by this widget.
   ///
@@ -60,6 +61,7 @@ class ExpandablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.animateFirstPage = false,
     this.estimatedPageSize = 0.0,
+    this.initialPage = 0,
     Key? key,
   })  : assert(
             (children != null && itemCount == null && itemBuilder == null) ||
@@ -90,8 +92,10 @@ class _ExpandablePageViewState extends State<ExpandablePageView> {
 
   @override
   void initState() {
-    _heights = _prepareHeights();
     super.initState();
+    _currentPage = widget.initialPage;
+    _previousPage = widget.initialPage;
+    _heights = _prepareHeights();
     _pageController = widget.controller ?? PageController();
     _pageController.addListener(_updatePage);
     _shouldDisposePageController = widget.controller == null;
@@ -189,8 +193,7 @@ class _ExpandablePageViewState extends State<ExpandablePageView> {
         (index, child) => MapEntry(
           index,
           OverflowPage(
-            onSizeChange: (size) =>
-                setState(() => _heights[index] = size.height),
+            onSizeChange: (size) => setState(() => _heights[index] = size.height),
             child: child,
           ),
         ),
